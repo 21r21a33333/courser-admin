@@ -35,7 +35,7 @@ function CoursePageLayout() {
   dispatch(loadCurrentCourseData(data));
 
   const redux_store_data = useSelector((state) => state.CurrentCourse.currentCoursedata)
-  console.log(redux_store_data)
+  // console.log(redux_store_data)/
   // console.log(data);
   return (
     <>

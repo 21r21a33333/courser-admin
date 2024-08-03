@@ -7,10 +7,16 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import JsonEditorComponent from "./../JsonEditorComponent";
 import JsonUploadComponent from "./JsonUploadComponent";
+import { useNavigate } from "react-router-dom";
+import { loadCurrentCourseData } from "../../redux/CurrentCourse";
+// import ENV from "../../env";
 function EditProblem() {
   let { moduleid, LessonId } = useParams();
   let data = useLoaderData();
-  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const courseid = useParams().courseid;
+  // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   // console.log(data)
   // alert(JSON.stringify(data));
   let lesson_title1 = data.lesson_title;
@@ -146,6 +152,20 @@ function EditProblem() {
           onClick={(e) => {
             e.preventDefault();
             PostLesson();
+            async function fetchdata() {
+              let config = {
+                method: "get",
+                maxBodyLength: Infinity,
+                url: `${env.SERVER_URI}/fetch/course/${courseid}`,
+                headers: {},
+              };
+              let response = await axios.request(config);
+              dispatch(loadCurrentCourseData(response.data));
+              // console.log(response.data)
+              navigate(`/courses/${courseid}/${moduleid}`, { replace: true });
+              window.location.reload();
+              // setCourseData(response.data);
+            }fetchdata();
           }}
         >
           Submit

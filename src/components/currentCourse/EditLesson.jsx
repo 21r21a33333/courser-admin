@@ -5,9 +5,15 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { loadCurrentCourseData } from "../../redux/CurrentCourse";
+// import env from "../../env";
 
 import { useLoaderData } from "react-router-dom";
 function EditLesson() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const courseid=useParams().courseid;
   let previous_data = useLoaderData();
   let { LessonId, moduleid } = useParams();
   // alert(JSON.stringify(previous_data))
@@ -85,7 +91,23 @@ function EditLesson() {
         <button
           type="submit"
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          onClick={PostLesson}
+          onClick={(e)=>{
+            PostLesson(e)
+            async function fetchdata() {
+              let config = {
+                method: "get",
+                maxBodyLength: Infinity,
+                url: `${env.SERVER_URI}/fetch/course/${courseid}`,
+                headers: {},
+              };
+              let response = await axios.request(config);
+              dispatch(loadCurrentCourseData(response.data));
+              // console.log(response.data)
+              navigate(`/courses/${courseid}/${moduleid}`, { replace: true });
+              window.location.reload();
+              // setCourseData(response.data);
+            }fetchdata();
+          }}
         >
           Submit
         </button>

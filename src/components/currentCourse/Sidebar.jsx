@@ -4,7 +4,10 @@ import { Link ,useParams} from "react-router-dom";
 import "./sidebar.css";
 import env from "../../env";
 import axios from "axios";
-
+import { useDispatch } from "react-redux";
+import { loadCurrentCourseData } from "../../redux/CurrentCourse";
+import fetchdata from "../../helper/fetchData";
+import { useNavigate } from "react-router-dom";
 function deleteModule(id){
   let config = {
     method: 'post',
@@ -17,6 +20,7 @@ function deleteModule(id){
   .then((response) => {
     console.log(JSON.stringify(response.data));
     alert("module deleted");
+    
   })
   .catch((error) => {
     console.log(error);
@@ -25,6 +29,10 @@ function deleteModule(id){
 }
 
 function NavItemslist(props) {
+  let { courseid } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   return (
     <li>
       <Link
@@ -46,7 +54,27 @@ function NavItemslist(props) {
         <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
           {props.prop.lessons.length}
         </span>
-        <div className="mx-3" onClick={()=>{deleteModule(props.prop._id)}}>
+        <div className="mx-3" onClick={()=>{
+          deleteModule(props.prop._id)
+          async function fetchdata() {
+            let config = {
+              method: "get",
+              maxBodyLength: Infinity,
+              url: `${env.SERVER_URI}/fetch/course/${courseid}`,
+              headers: {},
+            };
+            let response = await axios.request(config);
+            dispatch(loadCurrentCourseData(response.data));
+            // console.log(response.data)
+            navigate(`/courses/${courseid}`, { replace: true });
+            window.location.reload();
+            // setCourseData(response.data);
+          }fetchdata();
+        
+        
+        }
+          
+          }>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -100,6 +128,8 @@ function Sidebar() {
   let Modulesdata = useSelector(
     (state) => state.CurrentCourse.currentCoursedata.modules
   );
+  let courseData = useSelector((state) => state.CurrentCourse.currentCoursedata);
+  const dispatch = useDispatch();
   // console.log("Moduless data ")
   // console.log(Modulesdata)
   return (
@@ -145,8 +175,23 @@ function Sidebar() {
           <ul className="space-y-2 font-medium">
             <button
               type="button"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-              onClick={()=>{addModule(courseid)}}
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+              onClick={()=>{addModule(courseid);
+                async function fetchdata() {
+                  let config = {
+                    method: "get",
+                    maxBodyLength: Infinity,
+                    url: `${env.SERVER_URI}/fetch/course/${courseid}`,
+                    headers: {},
+                  };
+                  let response = await axios.request(config);
+                  dispatch(loadCurrentCourseData(response.data));
+                  window.location.reload();
+                  // setCourseData(response.data);
+                }
+                fetchdata();
+              }
+            }
             >
               Add Module
             </button>

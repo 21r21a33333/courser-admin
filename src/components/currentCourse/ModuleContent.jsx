@@ -6,8 +6,12 @@ import { useState } from "react";
 // import { Link } from 'react-router-dom';
 import axios from "axios";
 import env from "../../env";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loadCurrentCourseData } from "../../redux/CurrentCourse";
 
 import ContentForm from "./ContentForm";
+
 
 function deleteModule(lessonid,moduleid){
 
@@ -37,6 +41,9 @@ function deleteModule(lessonid,moduleid){
 
 
 function EditComponent(props) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const courseid=useParams().courseid;
   let {lessonType,LessonId} = props;
   let { moduleid } = useParams();
   return (
@@ -90,7 +97,23 @@ function EditComponent(props) {
       
 
       <button className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm text-blue-500 shadow-sm focus:relative"
-        onClick={()=>{deleteModule(LessonId,moduleid)}}
+        onClick={()=>{
+          deleteModule(LessonId,moduleid)
+          async function fetchdata() {
+            let config = {
+              method: "get",
+              maxBodyLength: Infinity,
+              url: `${env.SERVER_URI}/fetch/course/${courseid}`,
+              headers: {},
+            };
+            let response = await axios.request(config);
+            dispatch(loadCurrentCourseData(response.data));
+            // console.log(response.data)
+            navigate(`/courses/${courseid}/${moduleid}`, { replace: true });
+            window.location.reload();
+            // setCourseData(response.data);
+          }fetchdata();
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -302,13 +325,13 @@ function ModuleContent() {
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke-width="1.5"
+                  strokeWidth="1.5"
                   stroke="currentColor"
                   className="w-6 h-6"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
                   />
                 </svg>
